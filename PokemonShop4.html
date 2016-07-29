@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html ng-app="pokemonShop">
+	<head>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
+		<style>
+			.ng-invalid.ng-dirty {
+				border-color: red;
+			}
+			.ng-valid.ng-dirty {
+				border-color: green;
+			}
+			.ng-touched.ng-empty {
+				border-color: #ccc;
+			}
+		</style>
+	</head>
+
+	<body ng-controller="ShopController as shopCtrl" class="container"> <!-- as to specify alias -->
+		<ul class="list-group">
+		<div ng-repeat="pokemon in shopCtrl.pokemons | orderBy:'-price'">
+			<li ng-hide="pokemon.soldOut" class="list-group-item">
+				<img ng-src="{{pokemon.image}}" />
+				<pokemon-title></pokemon-title>
+				<section ng-controller="TabController as tabCtrl">
+					<ul class="nav nav-pills">
+						<li ng-class="{ active: tabCtrl.isSelected('desc') }">
+							<a href ng-click=" tabCtrl.selectTab('desc') ">Description</a>
+						</li>
+						<li ng-class="{ active: tabCtrl.isSelected('abils') }">
+							<a href ng-click=" tabCtrl.selectTab('abils') ">Abilities</a>
+						</li>
+						<li ng-class="{ active: tabCtrl.isSelected('discuss') }">
+							<a href ng-click=" tabCtrl.selectTab('discuss') ">Discussions</a>
+						</li>
+					</ul>
+					<div class="panel" ng-show="tabCtrl.isSelected('desc')">
+						<h4>Description</h4>
+						<p>{{ pokemon.description }}</p>
+					</div>
+					<div class="panel" ng-show="tabCtrl.isSelected('abils')">
+						<h4>Abilities</h4>
+						<p>{{ pokemon.abils }}</p>
+					</div>
+					<div class="panel" ng-show="tabCtrl.isSelected('discuss')">
+						<h4>Discussions</h4>
+						<blockquote ng-repeat="thread in pokemon.discussions">
+							<b>{{thread.hearts}} Hearts</b>
+							{{thread.thoughts}}
+							<cite class="clearfix">-by: {{thread.author}} ({{thread.email}}) on {{thread.created | date}}</cite>
+						</blockquote>
+
+						<thread-form></thread-form>
+					</div>
+				</section>
+				<button ng-show="pokemon.canPurchase">Add to Pack</button>
+			</li>
+		</div>
+
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+		<script type="text/javascript">
+			(function () {
+				var pokemons = [
+					{
+						name: 'Pikachu',
+						price: 20.30,
+						description: 'Cutest pokemon Pokemon!',
+						abils: 'Lightning',
+						image: 'http://i811.photobucket.com/albums/zz32/lockb1992/04.jpg',
+						canPurchase: true,
+						soldOut: false,
+						discussions: [
+							{
+								hearts: 5,
+								thoughts: 'Pikachu is so awesome!',
+								author: 'Pikachu#1Fan',
+								email: 'notareal@email.com'
+							}
+						]
+					},
+					{
+						name: 'Charmander',
+						price: 40.20,
+						description: 'A firey Pokemon',
+						abils: 'Inferno',
+						image: 'http://i838.photobucket.com/albums/zz306/kmyeakel/charmander/0000132.jpg',
+						canPurchase: false,
+						soldOut: false,
+						discussions: []
+					},
+					{
+						name: 'Ivysaur',
+						price: 48.30,
+						description: 'A leafy pokemon',
+						abils: 'Foresty',
+						image: 'http://i847.photobucket.com/albums/ab31/JuliesPokedex/PROJECT%20POKEDEX/I%20s/Ivysaur/5914868.jpg',
+						canPurchase: true,
+						soldOut: false,
+						discussions: []
+					}
+				];
+
+				var app = angular.module('pokemonShop', []); // depencies go into array
+
+				app.controller('ShopController', function () { // name of controller in capital case
+					this.pokemons = pokemons;
+				});
+
+				app.controller('TabController', function () {
+					this.tab = 'desc';
+					this.selectTab = function(tabName) {
+						this.tab = tabName;
+					}
+					this.isSelected = function(tabName) {
+						return this.tab === tabName;
+					}
+				});
+
+
+
+				app.directive('pokemonTitle', function() {
+					return {
+						restrict: 'E', // Element directive type
+						templateUrl: 'PokemonShop4_titleprice.html'
+					};
+				});
+
+				app.directive('threadForm', function() {
+					return {
+						restrict: 'E',
+						templateUrl: 'PokemonShop4_thread.html',
+						controller: function()
+						{
+							this.thread = {};
+							this.addThread = function(pokemon)
+							{
+								this.thread.created = Date.now();
+								pokemon.discussions.push(this.thread);
+								this.thread = {};
+							}
+						},
+						controllerAs: 'threadCtrl'
+					};
+				});
+
+			}) ();
+		</script>
+	</body>
+</html>

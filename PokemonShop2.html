@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html ng-app="pokemonShop">
+	<head>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
+	</head>
+
+	<body ng-controller="ShopController as shop" class="container"> <!-- as to specify alias -->
+		<ul class="list-group">
+		<div ng-repeat="pokemon in shop.pokemons | orderBy:'-price'">
+			<li ng-hide="pokemon.soldOut" class="list-group-item">
+				<img ng-src="{{pokemon.image}}" />
+				<h1>{{ pokemon.name }}</h1>
+				<h2>{{ pokemon.price | currency }}</h2>
+				<section ng-controller="TabController as tab">
+					<ul class="nav nav-pills">
+						<li ng-class="{ active: tab.isSelected('desc') }">
+							<a href ng-click=" tab.selectTab('desc') ">Description</a>
+						</li>
+						<li ng-class="{ active: tab.isSelected('abils') }">
+							<a href ng-click=" tab.selectTab('abils') ">Abilities</a>
+						</li>
+						<li ng-class="{ active: tab.isSelected('discuss') }">
+							<a href ng-click=" tab.selectTab('discuss') ">Discussions</a>
+						</li>
+					</ul>
+					<div class="panel" ng-show="tab.isSelected('desc')">
+						<h4>Description</h4>
+						<p>{{ pokemon.description }}</p>
+					</div>
+					<div class="panel" ng-show="tab.isSelected('abils')">
+						<h4>Abilities</h4>
+						<p>{{ pokemon.abils }}</p>
+					</div>
+					<div class="panel" ng-show="tab.isSelected('discuss')">
+						<h4>Discussions</h4>
+						<blockquote ng-repeat="thread in pokemon.discussions">
+							<b>{{thread.hearts}} Hearts</b>
+							{{thread.thoughts}}
+							<cite class="clearfix">-by: {{thread.author}}</cite>
+						</blockquote>
+
+						<h4>Submit Your Pokemon Thoughts</h4>
+						<form name="discussForm" class="form-group">
+							<blockquote>
+								<b>{{submission.hearts}} Hearts</b>
+								{{submission.thoughts}}
+								<cite class="clearfix">by: {{submission.author}}</cite>
+							</blockquote>
+							<select ng-model="submission.hearts" ng-options="hearts for hearts in [1,2,3,4,5]" class="form-control" title="Hearts">
+								<option value="">How many hearts for this Pokemon?</option>
+							</select>
+							<textarea ng-model="submission.thoughts" placeholder="What do you think?" class="form-control"></textarea>
+							<input ng-model="submission.author" type="text" placeholder="Name" class="form-control" />
+							<input type="submit" class="btn btn-primary" value="Submit" />
+						</form>
+					</div>
+				</section>
+				<button ng-show="pokemon.canPurchase">Add to Pack</button>
+			</li>
+		</div>
+
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+		<script type="text/javascript">
+			(function () {
+				var pokemons = [
+					{
+						name: 'Pikachu',
+						price: 20.30,
+						description: 'Cutest pokemon Pokemon!',
+						abils: 'Lightning',
+						image: 'http://i811.photobucket.com/albums/zz32/lockb1992/04.jpg',
+						canPurchase: true,
+						soldOut: false,
+						discussions: [
+							{
+								hearts: 5,
+								thoughts: 'Pikachu is so awesome!',
+								author: 'Pikachu#1Fan'
+							}
+						]
+					},
+					{
+						name: 'Charmander',
+						price: 40.20,
+						description: 'A firey Pokemon',
+						abils: 'Inferno',
+						image: 'http://i838.photobucket.com/albums/zz306/kmyeakel/charmander/0000132.jpg',
+						canPurchase: false,
+						soldOut: false,
+						discussions: []
+					},
+					{
+						name: 'Ivysaur',
+						price: 48.30,
+						description: 'A leafy pokemon',
+						abils: 'Foresty',
+						image: 'http://i847.photobucket.com/albums/ab31/JuliesPokedex/PROJECT%20POKEDEX/I%20s/Ivysaur/5914868.jpg',
+						canPurchase: true,
+						soldOut: false,
+						discussions: []
+					}
+				];
+
+				var app = angular.module('pokemonShop', []); // depencies go into array
+
+				app.controller('ShopController', function () { // name of controller in capital case
+					this.pokemons = pokemons;
+				});
+
+				app.controller('TabController', function () {
+					this.tab = 'desc';
+					this.selectTab = function(tabName) {
+						this.tab = tabName;
+					}
+					this.isSelected = function(tabName) {
+						return this.tab === tabName;
+					}
+				});
+
+			}) ();
+		</script>
+	</body>
+</html>
